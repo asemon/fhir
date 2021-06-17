@@ -25,6 +25,12 @@ import com.asemon.app.model.PatientDto;
 import com.asemon.app.service.dao.PatientDaService;
 import com.google.gson.Gson;
 
+/**
+ * RESTful webservice to retrieve and save patient data
+ * 
+ * @author Alex Semonov
+ *
+ */
 @Path("/patient")
 public class PatientRestfulService {
 
@@ -33,6 +39,11 @@ public class PatientRestfulService {
 
   private static final Logger LOG = LoggerFactory.getLogger(PatientRestfulService.class);
 
+  /**
+   * Just a small method to test availability
+   * 
+   * @return
+   */
   @GET
   @Path("/test")
   @Produces(MediaType.TEXT_PLAIN)
@@ -40,6 +51,12 @@ public class PatientRestfulService {
     return Response.status(Status.OK).build();
   }
 
+  /**
+   * Retrieves patient data from server and calls DA service to persist it
+   * 
+   * @param fhirUrl encoded URI
+   * @return response with saved JSON snippet in payload for demonstration
+   */
   @POST
   @Path("/transferFhirPatient")
   @Produces(MediaType.APPLICATION_JSON)
@@ -52,6 +69,7 @@ public class PatientRestfulService {
       HttpResponse response = client.execute(getRequest);
       String jsonString = EntityUtils.toString(response.getEntity());
       LOG.info("Received payload:\n {}", jsonString);
+      // using GSON as a convenient library for JSON mapping
       Gson gson = new Gson();
       PatientDto patient = gson.fromJson(jsonString, PatientDto.class);
       patient.setUri(uri);
@@ -69,6 +87,12 @@ public class PatientRestfulService {
     }
   }
 
+  /**
+   * Gets data from DB and sends it in response in JSON format
+   * 
+   * @param fhirUrl encoded URI
+   * @return response with patient data retrieved from DB in JSON format
+   */
   @GET
   @Path("/transferedPatient")
   @Produces(MediaType.APPLICATION_JSON)

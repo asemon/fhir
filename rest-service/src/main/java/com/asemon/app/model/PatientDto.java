@@ -1,11 +1,21 @@
 package com.asemon.app.model;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+
+
+/**
+ * Simple POJO class which serves as a model for GSON and also represents a DTO for data transfer
+ * between the layers
+ * 
+ * @author Alex Semonov
+ *
+ */
 
 @Getter
 @Setter
@@ -15,7 +25,7 @@ public class PatientDto {
 
   private String gender;
   private String birthDate;
-  private List<NameDto> name;
+  private List<NameDto> name = new ArrayList<>();
   private String uri;
 
   @Getter
