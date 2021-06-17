@@ -1,129 +1,38 @@
-# REST with CXF QuickStart
+# RESTful patient data retreival service
 
-This quick start demonstrates how to create a RESTful (JAX-RS) web service using Apache CXF and expose it in a servlet container such as Apache Tomcat.
+This service is written in Java (8) and is designed to be deployed in Docker in a Wildfly 15 container, Postgres 12 is used as DB.
 
-The REST service provides a customer service that supports the following operations
- 
-- PUT /customerservice/customers/ - to create or update a customer
-- GET /customerservice/customers/{id} - to view a customer with the given id
-- DELETE /customerservice/customers/{id} - to delete a customer with the given id
-- GET /customerservice/orders/{orderId} - to view an order with the given id
-- GET /customerservice/orders/{orderId}/products/{productId} - to view a specific product on an order with the given id
+Requirements: Docker, Maven, git, jdk8, curl (for POST requests). Tested on 2 Windows 10 Pro PCs.
 
-When the application is deployed in Apache Tomcat, you can use the web console to list the Tomcat applications, and easily access the quickstart by clicking the url on the `rest` application, as shown in the screenshot below:
+In order to build and deploy this service following steps must be followed:
+1. clone this repository with 
+git clone https://github.com/asemon/fhir.git 
+to your local machine.
 
-![Tomcat REST diagram](https://raw.githubusercontent.com/fabric8io/fabric8/master/docs/images/tomcat-rest.png)
+2. /fhir directory will be created. Inside you will find /rest-service directory -> change there.
 
+3. inside /rest-service execute following maven command:
+mvn clean install
+This will build the project and create our restservice.war artefact (located in /rest-service/target)
 
+4. In /rest-service you will also find a Dockerfile and a docker-compose.yml. These are needed for container setup and deployment of our service.
 
-The example comes as source code and pre-built binaries with the fabric8 distribution. 
+5. The Dockerfile ensures that a Wildfly 15 docker container is downloaded and configured. During the configuration a module with a Postgres JDBC driver and a modified standalone.xml are copied to the Wildfly server. The driver is needed for communication with the Postgres datasource and standalone.xml keeps the configuration of the datasource (credentials, connection details and other). Afterwards our artifact is copied in the deployment directory of the server. Deployment scanner will ensure its startup. Server module and standalone.xml are located within the project and can be found in /src/main/resources/jboss. 
 
-To try the example you do not need to build from source first. Although building from source allows you to modify the source code, and re-deploy the changes to fabric. See more details on the fabric8 website about the [developer workflow](http://fabric8.io/gitbook/developer.html).
+6. docker-compose.yml keeps the formalized description of our deployment structure. I configured two services: postgres (sql server) and restservice (our webservice). It also holds port configurations, DB credentials and ensures that create.sql is copied to the container (script file can be found here: src\main\resources\ddl). It will be executed during container startup and will create necessary SQL tables.
 
-To build from the source code:
+7. So, now you only need to execute 
+docker-compose up
+from within the /rest-service directory (where both docker files reside). After container download, setup and startup we can test the service with curl. The service has two methods: transferFhirPatient(POST) and transferedPatient(GET), both have a single QUERY parameter fhirUrl, which expects a UTF-8 encoded URL. There are lots of free online En- and Decoders for URLs (for example https://www.urlencoder.org/). For testing I created a resource, which can be found here: https://lforms-fhir.nlm.nih.gov/baseR4/Patient/5770420. To test both methods you can use following curl commands:
+curl --request POST http://localhost:8080/restservice/patient/transferFhirPatient?fhirUrl=https%3A%2F%2Flforms-fhir.nlm.nih.gov%2FbaseR4%2FPatient%2F5770420
+curl --request GET http://localhost:8080/restservice/patient/transferedPatient?fhirUrl=https%3A%2F%2Flforms-fhir.nlm.nih.gov%2FbaseR4%2FPatient%2F5770420
+GET method can also be called from the browser by simply navigating to this website:
+http://localhost:8080/restservice/patient/transferedPatient?fhirUrl=https%3A%2F%2Flforms-fhir.nlm.nih.gov%2FbaseR4%2FPatient%2F5770420
 
-1. Change your working directory to `quickstarts/war/rest` directory.
-1. Run `mvn clean install` to build the quickstart.
+To stop the containers simply call docker-compose stop. A container restart should not delete persisted data from the DB. 
 
-After building from the source code, you can upload the changes to the fabric container:
-
-1. It is assumed that you have already created a fabric and are logged into a container called `root`.
-1. Change your working directory to `quickstarts/war/rest` directory.
-1. Run `mvn fabric8:deploy` to upload the quickstart to the fabric container.
-
-If you run the `fabric:deploy` command for the first then, it will ask you for the username and password to login the fabric container.
-And then store this information in the local Maven settings file. You can find more details about this on the fabric8 website about the [Maven Plugin](http://fabric8.io/gitbook/mavenPlugin.html).
-
+To summarize it should be said, that some assumptions were made during the development of the service, which I tried to reflect in the comments to my code. Also the testing part was completely omitted in order to keep things simple for the sake of this task.
 
 
-The following information is divded into two sections, whether you are using the command line shell in fabric, or using the web console
+    
 
-
-You can deploy and run this example at the console command line, as follows:
-
-1. It is assumed that you have already created a fabric and are logged into a container called `root`.
-1. Create a new child container and deploy the `quickstarts-war-rest` profile in a single step, by entering the
- following command at the console:
-
-        fabric:container-create-child --profile quickstarts-war-rest root mychild
-
-1. Wait for the new child container, `mychild`, to start up. Use the `fabric:container-list` command to check the status of the `mychild` container and wait until the `[provision status]` is shown as `success`.
-
-
-You can deploy and run this example from the web console, as follows
-
-1. It is assumed that you have already created a fabric and are logged into a container called `root`.
-1. Login the web console
-1. Click the Wiki button in the navigation bar
-1. Select `quickstarts` --> `war` --> `rest`
-1. Click the `New` button in the top right corner
-1. In the Create New Container page, enter `mychild` in the Container Name field, and click the *Create and start container* button
-
-
-
-To use the application be sure to have deployed the quickstart in fabric8 as described above. 
-
-1. Login the web console
-1. Click the Runtime button in the navigation bar
-1. Select the `mychild` container in the containers list, and click the *open* button right next to the container name.
-1. A new window opens and connects to the container.
-1. Click the *Tomcat* button, which lists all the WAR applications deployed. Click the url link for the `rest` application, which opens a web page, with further instructions how to try this example.
-1. You can also click the *Log* button the navigation bar to see the business logging.
-
-
-
-You can use any browser to perform a HTTP GET.  This allows you to very easily test a few of the RESTful services we defined:
-
-Notice: As fabric8 assigns a free dynamic port to Tomcat, the port number may vary on your system.
-
-Use this URL to display the XML representation for customer 123:
-
-    http://localhost:9004/rest/cxf/customerservice/customers/123
-
-You can also access the XML representation for order 223 ...
-
-    http://localhost:9004/rest/cxf/customerservice/orders/223
-
-**Note:** if you use Safari, you will only see the text elements but not the XML tags - you can view the entire document with 'View Source'
-
-
-You can use a command-line utility, such as cURL or wget, to perform the HTTP requests.  We have provided a few files with sample XML representations in `src/test/resources`, so we will use those for testing our services.
-
-Notice: As fabric8 assigns a free dynamic port to Tomcat, the port number may vary on your system.
-
-1. Open a command prompt and change directory to `rest`.
-2. Run the following curl commands (curl commands may not be available on all platforms):
-
-    * Create a customer
-
-            curl -X POST -T src/test/resources/add_customer.xml -H "Content-Type: text/xml" http://localhost:9004/rest/cxf/customerservice/customers
-
-    * Retrieve the customer instance with id 123
-
-            curl http://localhost:9004/rest/cxf/customerservice/customers/123
-
-    * Update the customer instance with id 123
-
-            curl -X PUT -T src/test/resources/update_customer.xml -H "Content-Type: text/xml" http://localhost:9004/rest/cxf/customerservice/customers
-
-    * Delete the customer instance with id 123
-
-             curl -X DELETE http://localhost:9004/rest/cxf/customerservice/customers/123
-
-
-
-The following information is divded into two sections, whether you are using the command line shell in fabric, or using the web console
-
-
-To stop and undeploy the example in fabric8:
-
-1. Stop and delete the child container by entering the following command at the console:
-
-        fabric:container-stop mychild
-        fabric:container-delete mychild
-
-
-To stop and undeploy the example in fabric8:
-
-1. In the web console, click the *Runtime* button in the navigation bar.
-1. Select the `mychild` container in the *Containers* list, and click the *Stop* button in the top right corner
