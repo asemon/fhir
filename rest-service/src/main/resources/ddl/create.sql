@@ -1,0 +1,15 @@
+create sequence IF NOT EXISTS nam_seq start 1 increment 50;
+create sequence IF NOT EXISTS pat_seq start 1 increment 50;
+create table IF NOT EXISTS GIVEN (Name_nameid int8 not null, given varchar(255));
+create table IF NOT EXISTS NAME (nameid int8 not null, FAMILY varchar(255), patientid int8 not null, primary key (nameid));
+create table IF NOT EXISTS PATIENT (PATIENTID int8 not null, BIRTH_DATE date, CREATED_ON timestamp, GENDER varchar(255), URI varchar(255), primary key (PATIENTID));
+create table IF NOT EXISTS PREFIX (Name_nameid int8 not null, prefix varchar(255));
+create table IF NOT EXISTS SUFFIX (Name_nameid int8 not null, suffix varchar(255));
+alter table if exists GIVEN drop constraint if exists FK50a2sgrgkbk5n5m8kxycanpk3;
+alter table if exists GIVEN add constraint FK50a2sgrgkbk5n5m8kxycanpk3 foreign key (Name_nameid) references NAME;
+alter table if exists NAME drop constraint if exists FKqmydn93dwcrbn0tcjw6bmw8r6;
+alter table if exists NAME add constraint FKqmydn93dwcrbn0tcjw6bmw8r6 foreign key (patientid) references PATIENT;
+alter table if exists PREFIX drop constraint if exists FKn7ybvk8c5h49hwspveqhuaai4;
+alter table if exists PREFIX add constraint FKn7ybvk8c5h49hwspveqhuaai4 foreign key (Name_nameid) references NAME;
+alter table if exists SUFFIX drop constraint if exists FKr52mrsy36uu64bh0mbpj7drd3;
+alter table if exists SUFFIX add constraint FKr52mrsy36uu64bh0mbpj7drd3 foreign key (Name_nameid) references NAME;
