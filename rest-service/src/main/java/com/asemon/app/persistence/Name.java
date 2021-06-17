@@ -14,7 +14,11 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
+import lombok.Getter;
+import lombok.Setter;
 
+@Getter
+@Setter
 @Entity
 @Table(name = "NAME")
 public class Name implements Serializable {
@@ -44,53 +48,5 @@ public class Name implements Serializable {
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "patientid", nullable = false)
   private Patient patient;
-
-  public String getFamily() {
-    return family;
-  }
-
-  public void setFamily(String family) {
-    this.family = family;
-  }
-
-  public Set<String> getGiven() {
-    return given;
-  }
-
-  public void setGiven(Set<String> given) {
-    this.given = given;
-  }
-
-  public Set<String> getPrefix() {
-    return prefix;
-  }
-
-  public void setPrefix(Set<String> prefix) {
-    this.prefix = prefix;
-  }
-
-  public Set<String> getSuffix() {
-    return suffix;
-  }
-
-  public void setSuffix(Set<String> suffix) {
-    this.suffix = suffix;
-  }
-
-  public Long getNameId() {
-    return nameid;
-  }
-
-  public void setNameId(Long nameid) {
-    this.nameid = nameid;
-  }
-
-  public Patient getPatient() {
-    return patient;
-  }
-
-  public void setPatient(Patient patient) {
-    this.patient = patient;
-  }
 
 }

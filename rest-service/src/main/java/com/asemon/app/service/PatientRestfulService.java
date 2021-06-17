@@ -51,7 +51,7 @@ public class PatientRestfulService {
       HttpGet getRequest = new HttpGet(uri);
       HttpResponse response = client.execute(getRequest);
       String jsonString = EntityUtils.toString(response.getEntity());
-      LOG.info("Received payload:" + "\n" + jsonString);
+      LOG.info("Received payload:\n {}", jsonString);
       Gson gson = new Gson();
       PatientDto patient = gson.fromJson(jsonString, PatientDto.class);
       patient.setUri(uri);
@@ -75,14 +75,16 @@ public class PatientRestfulService {
   public Response transferedPatient(@QueryParam("fhirUrl") String fhirUrl) {
     try {
       String uri = URLDecoder.decode(fhirUrl, StandardCharsets.UTF_8.name());
-      LOG.info("Received URI: " + uri);
+      LOG.info("Received URI: {}", uri);
       PatientDto patient = patientService.getPatient(uri);
       if (patient == null) {
         LOG.error("Nothing found");
         return Response.status(Status.NOT_FOUND).build();
       }
       Gson gson = new Gson();
-      return Response.status(Status.OK).entity(gson.toJson(patient)).build();
+      String jsonObject = gson.toJson(patient);
+      LOG.info("Found following entry:\n {}", jsonObject);
+      return Response.status(Status.OK).entity(jsonObject).build();
     } catch (UnsupportedEncodingException e) {
       LOG.error("URL could not be encoded", e);
       return Response.status(Status.BAD_REQUEST).build();
