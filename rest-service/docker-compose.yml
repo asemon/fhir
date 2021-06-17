@@ -1,0 +1,25 @@
+version: '3.6'
+
+services:
+  postgres:
+    image: postgres:13.1
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-q", "-d", "postgres", "-U", "root" ]
+      timeout: 45s
+      interval: 10s
+      retries: 10
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=admin
+      - APP_DB_USER=postgres
+      - APP_DB_PASS=admin
+      - APP_DB_NAME=patientdb
+    logging:
+        options:
+          max-size: 10m
+          max-file: "3"
+    volumes:
+      - ./src/main/resources/ddl/create.sql:/docker-entrypoint-initdb.d/create.sql
+    ports:
+      - 5432:5432
