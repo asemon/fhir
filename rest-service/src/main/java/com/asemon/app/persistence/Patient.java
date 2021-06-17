@@ -9,8 +9,11 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
+import javax.persistence.PrePersist;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
 @Entity
@@ -20,9 +23,10 @@ public class Patient implements Serializable {
   private static final long serialVersionUID = -1418940091067178911L;
 
   @Id
-  @GeneratedValue
-  @Column(name = "PATIENT_ID")
-  private Long patientId;
+  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "pat_seq")
+  @SequenceGenerator(name = "pat_seq", sequenceName = "pat_seq")
+  @Column(name = "PATIENTID")
+  private Long patientid;
 
   @Column(name = "CREATED_ON")
   private LocalDateTime createdOn;
@@ -38,6 +42,11 @@ public class Patient implements Serializable {
 
   @OneToMany(mappedBy = "patient", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
   private Set<Name> name;
+
+  @PrePersist
+  public void prepPersist() {
+    createdOn = LocalDateTime.now();
+  }
 
   public LocalDateTime getCreatedOn() {
     return createdOn;
@@ -77,6 +86,14 @@ public class Patient implements Serializable {
 
   public void setName(Set<Name> name) {
     this.name = name;
+  }
+
+  public Long getPatientId() {
+    return patientid;
+  }
+
+  public void setPatientId(Long patientid) {
+    this.patientid = patientid;
   }
 
 }

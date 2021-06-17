@@ -2,11 +2,13 @@ package com.asemon.app.model;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 public class PatientDto {
   private String gender;
   private String birthDate;
-  private List<Name> name;
+  private List<NameDto> name;
+  private String uri;
 
   public String getGender() {
     return gender;
@@ -24,18 +26,39 @@ public class PatientDto {
     this.birthDate = birthDate;
   }
 
-  public List<Name> getName() {
+  public List<NameDto> getName() {
     if (name == null) {
-      name = new ArrayList<PatientDto.Name>();
+      name = new ArrayList<PatientDto.NameDto>();
     }
     return name;
   }
 
-  public void setName(List<Name> name) {
+  public void setName(List<NameDto> name) {
     this.name = name;
   }
 
-  private class Name {
+  public String getUri() {
+    return uri;
+  }
+
+  public void setUri(String uri) {
+    this.uri = uri;
+  }
+
+  public static class NameDto {
+    public NameDto(String family, Set<String> given, Set<String> prefix, Set<String> suffix) {
+      this.family = family;
+      if (given != null) {
+        this.given = given.toArray(new String[given.size()]);
+      }
+      if (prefix != null) {
+        this.prefix = prefix.toArray(new String[prefix.size()]);
+      }
+      if (suffix != null) {
+        this.suffix = suffix.toArray(new String[suffix.size()]);
+      }
+    }
+
     private String family;
     private String[] given;
     private String[] prefix;
@@ -72,19 +95,7 @@ public class PatientDto {
     public void setSuffix(String[] suffix) {
       this.suffix = suffix;
     }
+
   }
 
-  @Override
-  public String toString() {
-    StringBuilder sb = new StringBuilder();
-    sb.append("gender: ").append(gender).append("\n").append("birth date: ").append(birthDate)
-        .append("\n");
-    for (Name n : name) {
-      sb.append("family: ").append(n.family).append("\n").append("given: ");
-      for (String s : n.given) {
-        sb.append(s).append(" ");
-      }
-    }
-    return sb.toString();
-  }
 }
